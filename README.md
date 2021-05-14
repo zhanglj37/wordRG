@@ -2,7 +2,7 @@
 
 wordRG() is a simple R function for extracting abstracts on ResearchGate and generating personal research word cloud.  
 
-I built it to practice the knowledge when learning text mining and, of course, for fun.
+I built it for practice when learning text mining and, of course, for fun.
 
 Why not Google Scholar?
 
