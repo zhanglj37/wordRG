@@ -73,7 +73,7 @@ wordRG <- function(rg_id, stopwd = NULL, replacewd = NULL, wordFreq = NULL){
     
     paper_html = read_html(paper_url)
     
-    # check whether there is abstract
+    # check whether there is an abstract
     text_all = paper_html %>% 
       html_nodes("div div") %>% html_text() 
     is_ab = which(text_all=="Abstract" | text_all=="Abstract and Figures")
@@ -87,9 +87,6 @@ wordRG <- function(rg_id, stopwd = NULL, replacewd = NULL, wordFreq = NULL){
       # text in the figure (if exist)
       text_more = paper_html %>% 
         html_nodes("div div.nova-e-expandable-text__container") %>% html_text() 
-
-      text_temp = paper_html %>% 
-        html_nodes("div div.nova-c-card__body--spacing-inherit") %>% html_text() 
       
       # delete the text in the figure (if exist)
       if(length(text_more)>0){ 
@@ -148,7 +145,6 @@ wordRG <- function(rg_id, stopwd = NULL, replacewd = NULL, wordFreq = NULL){
   
   
 }
-
 
 ```
 
