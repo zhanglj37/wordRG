@@ -42,6 +42,21 @@ You can also modify the source code based on your needs. For example,
 ## Source code of the function
 
 ```R
+if(!require(rvest)) install.packages(pkgs="rvest",repos="http://cran.r-project.org")
+if(!require(XML)) install.packages(pkgs="XML",repos="http://cran.r-project.org")
+if(!require(dplyr)) install.packages(pkgs="dplyr",repos="http://cran.r-project.org")
+if(!require(tidytext)) install.packages(pkgs="tidytext",repos="http://cran.r-project.org")
+if(!require(wordcloud)) install.packages(pkgs="wordcloud",repos="http://cran.r-project.org")
+if(!require(tm)) install.packages(pkgs="tm",repos="http://cran.r-project.org")
+
+library(rvest)
+library(XML)
+library(dplyr)
+library(tidytext)
+library(wordcloud)
+library(stringr)
+library(tm)
+
 wordRG <- function(rg_id, stopwd = NULL, replacewd = NULL, wordFreq = NULL){
   
   ## get the WebLink of all the publications  ############################
