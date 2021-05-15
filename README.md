@@ -239,6 +239,13 @@ wordRG <- function(rg_id, stopwd = NULL, replacewd = NULL, deResearch = NULL,  w
 ```
 
 
+## How to solve network errors
+
+If there are many publications in your profile and the network is not stable, you may get the error like  *Error in open.connection(x, "rb") : HTTP error 429.*
+
+Solution: use source code of the function instead of the function
+
+
 
 Update 2021-05-15
 
