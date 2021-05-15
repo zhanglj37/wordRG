@@ -130,9 +130,9 @@ wordRG <- function(rg_id, stopwd = NULL, replacewd = NULL, deResearch = NULL,  w
 	for (dei in 1:length(deResearch)){
 		loc_de[dei] = which(div_url_items == deResearch[dei])
 	}
+	div_url_items = div_url_items[-loc_de]
   }
-  div_url_items = div_url_items[-loc_de]
-  
+    
   
   ## get the abstracts of all the publications  ############################
   
@@ -190,9 +190,6 @@ wordRG <- function(rg_id, stopwd = NULL, replacewd = NULL, deResearch = NULL,  w
   }else{
 	all_ab_selec = tolower(all_abstracts)
   }
-  
-
-  
  
   
   ## Text Mining   ############################
