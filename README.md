@@ -33,13 +33,6 @@ Here, I will show a quick implementation of this function.
    - **replacewd**: pairs of words (phrases) with identical meaning. You can use one representative word (phrase) and replace the others.
 
      ```R
-     replacewd <- matrix(c(
-       'structural equation modeling', 'sem',
-       'structural equation models', 'sem',
-       'pmm', 'post hoc model modification',
-       'moderated', 'moderation'
-     ), ncol=2, byr=T)
-     
      replacewd
      #     [,1]                           [,2]                         
      #[1,] "structural equation modeling" "sem"                        
@@ -60,7 +53,7 @@ Here, I will show a quick implementation of this function.
    rg_id = "Lijin-Zhang"
    
    stopwd <- c("study", "studies", "method", "methods", "analysis", "approaches", "approach", "results", "research", "step", "procedure", "implementation", "pi", "pa", "lms", "pmm", 'cfa')
-   # "pi" are abbreviations, I always add the full name before the abbreviation in abstracts, so here I choose to delete the abbreviation   
+   # "pi" and "pa" are abbreviations, I always add the full name before the abbreviation in abstracts, so here I choose to delete the abbreviation   
    
    replacewd <- matrix(c(
      'structural equation modeling', 'sem',
