@@ -2,7 +2,7 @@
 
 wordRG() is a simple R function for extracting abstracts on ResearchGate and generating personal research word cloud.  
 
-I built it for practice when learning text mining and, of course, for fun.
+I built it for practice when learning text mining and for fun.
 
 Why not Google Scholar?
 
@@ -21,15 +21,65 @@ Here, I will show a quick implementation of this function.
 
 2. Find your id in ResearchGate
 
+   - Get the WebLink of your profile (e.g., https://www.researchgate.net/profile/XXX-XXX), the id is the content after 'profile/' (e.g., 'XXX-XXX')
+
 3. (Define stopwd, replacewd, wordFreq if necessary)
+
+   - **stopwd**: words with little information about your research (e.g., *results*). 
+
+     - Note that the common stopwords such as 'an' will be automatically deleted. 
+     - By the way, sometimes the ResearchGate adds copyright information to the abstracts (e.g., *(PsycInfo Database Record (c) 2020 APA, all rights reserved).*), you can exclude such words in your word cloud by adding them in the stopwd variable.
+
+   - **replacewd**: pairs of words (phrases) with identical meaning. You can use one representative word (phrase) and replace the others.
+
+     ```R
+     replacewd <- matrix(c(
+       'structural equation modeling', 'sem',
+       'structural equation models', 'sem',
+       'pmm', 'post hoc model modification',
+       'moderated', 'moderation'
+     ), ncol=2, byr=T)
+     
+     replacewd
+     #     [,1]                           [,2]                         
+     #[1,] "structural equation modeling" "sem"                        
+     #[2,] "structural equation models"   "sem"                        
+     #[3,] "pmm"                          "post hoc model modification"
+     #[4,] "moderated"                    "moderation"  
+     
+     # Words (phrases) in the second column are the representative ones, those in the first column are what you want to replace with representative words (phrases).
+     ```
+
+   - **deResearch**: WebLinks of research that will not be include in the word cloud. For example, research that is not highly related to your main work. 
+
+   - **wordFreq**: 'words with frequency below min.freq will not be plotted', quoted from ?wordcloud(). The default setting of wordFreq is the mean of frequencies of all words.
 
 4. Run the function and get the figure
 
    ```R
-   example (wait for update)
-   ```
-
+   rg_id = "Lijin-Zhang"
    
+   stopwd <- c("study", "studies", "method", "methods", "analysis", "approaches", "approach", "results", "research", "step", "procedure", "implementation", "pi", "pa", "lms", "pmm", 'cfa')
+   # "pi" are abbreviations, I always add the full name before the abbreviation in abstracts, so here I choose to delete the abbreviation   
+   
+   replacewd <- matrix(c(
+     'structural equation modeling', 'sem',
+     'structural equation models', 'sem',
+     'moderated', 'moderation',
+     'least absolute shrinkage and selection operator', 'lasso'
+   ), ncol=2, byr=T)
+   
+   deResearch <- c('https://www.researchgate.net/publication/338896983_Plasma_Neurofilament_Light_Chain_May_Be_a_Biomarker_for_the_Inverse_Association_Between_Cancers_and_Neurodegenerative_Diseases')
+   # delete the applied research which is not my main work
+   
+   wordRG(rg_id, stopwd, replacewd, deResearch)
+   #There are 6 research in your profile on ResearchGate. 
+   #No abstract found in the following research: 
+   #[1] https://www.researchgate.net/publication/336463094_Bayesian_structural_equation_modeling_and_its_current_researches
+   
+   ```
+   
+   ![](Lijin_Rg.png)
 
 
 
@@ -57,7 +107,8 @@ library(wordcloud)
 library(stringr)
 library(tm)
 
-wordRG <- function(rg_id, stopwd = NULL, replacewd = NULL, wordFreq = NULL){
+
+wordRG <- function(rg_id, stopwd = NULL, replacewd = NULL, deResearch = NULL,  wordFreq = NULL){
   
   ## get the WebLink of all the publications  ############################
   rg_url = paste0("https://researchgate.net/profile/", rg_id, "/research")
@@ -78,6 +129,16 @@ wordRG <- function(rg_id, stopwd = NULL, replacewd = NULL, wordFreq = NULL){
   }
   
   div_url_items = div_url_items[seq(1,length(div_url_items),2)]
+  cat(paste0('There are ', length(div_url_items), ' research in your profile on ResearchGate. \n'))
+  
+  # delete the research in deResearch
+  loc_de = NULL
+  if(!is.null(deResearch)){
+	for (dei in 1:length(deResearch)){
+		loc_de[dei] = which(div_url_items == deResearch[dei])
+	}
+  }
+  div_url_items = div_url_items[-loc_de]
   
   
   ## get the abstracts of all the publications  ############################
@@ -123,29 +184,52 @@ wordRG <- function(rg_id, stopwd = NULL, replacewd = NULL, wordFreq = NULL){
   }
   
   # delete the publications with no abstract information in ResearchGate
-  loc_de = which(all_abstracts=="a")
-  cat(paste0())
-  all_ab_selec = all_abstracts[-loc_de]
+  loc_no = which(all_abstracts=="a")
+  
+  if(length(loc_no)!=0){
+	cat_url = paste0('No abstract found in the following research: \n')
+	for(loci in 1:length(loc_no)){
+		cat_url = paste0(cat_url, '[', loci, '] ', div_url_items[loc_no[loci]], '\n')
+	}
+	cat(cat_url)
+	
+	all_ab_selec = tolower(all_abstracts[-loc_no])
+  }else{
+	all_ab_selec = tolower(all_abstracts)
+  }
+  
+
+  
+ 
+  
+  ## Text Mining   ############################
+  # replace replacewd
+  if(!is.null(replacewd)){
+	for (replacei in 1:dim(replacewd)[1]){
+		for (itemi in 1:length(all_ab_selec)){
+			all_ab_selec[itemi] = str_replace(all_ab_selec[itemi], replacewd[replacei,1], replacewd[replacei,2])
+		}
+	}
+  }
   
   # tidy the text data
   text_df <- tibble(line = 1:length(all_ab_selec),  text = removeNumbers(all_ab_selec))
   
-  # replace replacewd
-  # wait for update
+  
   
   # cast paragraphs into words
   text_word = text_df %>%
     unnest_tokens(word, text)
   
-  if(is.null(myStopWords)){
-    myStopWords <- c("study", "studies", "analysis", "approaches", "approach", "results", "research", "procedure")
+  if(is.null(stopwd)){
+    stopwd <- c("study", "studies", "analysis", "approaches", "approach", "results", "research", "procedure")
     # I just pick up some words with little information in my abstracts.
     # This part can be updated by analyzing your abstracts and extract words with low tf_idf
   }
   
   # word cloud
   text_forcloud = text_word %>%
-    filter(!word %in% myStopWords)  %>%
+    filter(!word %in% stopwd)  %>%
     filter(!word %in% stop_words$word)  %>%
     filter(nchar(word)>1)  %>%
     count(word) %>%
@@ -153,7 +237,7 @@ wordRG <- function(rg_id, stopwd = NULL, replacewd = NULL, wordFreq = NULL){
   
   
   if(is.null(wordFreq)){
-    wordFreq = median(text_forcloud$n) + 1
+    wordFreq = ceiling(mean(text_forcloud$n))
   }
   
   wordcloud(text_forcloud$word, text_forcloud$n, random.color=FALSE, random.order=FALSE, color=brewer.pal(8, "Dark2"), min.freq=wordFreq, scale=c(3, 1))
@@ -161,8 +245,8 @@ wordRG <- function(rg_id, stopwd = NULL, replacewd = NULL, wordFreq = NULL){
   
 }
 
-```
 
+```
 
 
 
