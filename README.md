@@ -207,9 +207,16 @@ wordRG <- function(rg_id, stopwd = NULL, replacewd = NULL, deResearch = NULL,  w
   
   
   
+  
   # cast paragraphs into words
   text_word = text_df %>%
     unnest_tokens(word, text)
+  text_word_rep = text_word
+  for (i in 1:dim(replacewd)[1]){
+	  text_word_rep$word[which(text_word$word==replacewd[i,1])]=replacewd[i,2]
+  }
+
+  
   
   if(is.null(stopwd)){
     stopwd <- c("study", "studies", "analysis", "approaches", "approach", "results", "research", "procedure")
@@ -218,13 +225,12 @@ wordRG <- function(rg_id, stopwd = NULL, replacewd = NULL, deResearch = NULL,  w
   }
   
   # word cloud
-  text_forcloud = text_word %>%
+  text_forcloud = text_word_rep %>%
     filter(!word %in% stopwd)  %>%
     filter(!word %in% stop_words$word)  %>%
     filter(nchar(word)>1)  %>%
-    count(word) %>%
-    mutate(word = reorder(word, n)) 
-  
+    count(word, sort = TRUE)
+    
   
   if(is.null(wordFreq)){
     wordFreq = ceiling(mean(text_forcloud$n))
@@ -236,17 +242,18 @@ wordRG <- function(rg_id, stopwd = NULL, replacewd = NULL, deResearch = NULL,  w
 }
 
 
+
 ```
 
 
-## How to solve network errors
+## How to solve internet errors
 
-If there are many publications in your profile and the network is not stable, you may get the error like  *Error in open.connection(x, "rb") : HTTP error 429.*
+If there are many publications in your profile and the internet is not stable, you might get the error like  *Error in open.connection(x, "rb") : HTTP error 429.*
 
 Solution: use source code of the function instead of the function
 
 
-
-Update 2021-05-15
+Built 2021-05-15
+Update 2021-06-15
 
 Lijin Zhang
