@@ -7,7 +7,6 @@ I built it for practice when learning text mining and for fun.
 Why not Google Scholar?
 
 - The abstracts in Google Scholar are often abridged versions with '...' ending.
-- I can't access this website stably given my location.
 
 Want to analyze the information of citations and the network of co-authors?
 
